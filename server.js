@@ -1,5 +1,4 @@
 import express from 'express';
-
 import cors from 'cors';
 
 const app = express();
@@ -10,6 +9,10 @@ app.use(express.json());
 
 let tasks = [];
 
+// Function to generate a unique ID for each task 
+const generateId = () => { 
+    return tasks.length > 0 ? Math.max(...tasks.map(task => task.id)) + 1 : 1;
+   }; 
 
 app.get('/tasks', (req, res) => {
   res.json(tasks);
