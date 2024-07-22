@@ -2,11 +2,11 @@
   "name": "todo-list-back-end",
   "version": "1.0.0",
   "description": "Backend for Todo List App",
-  "main": "server.js",
+  "main": "App.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node App.js",
+    "dev": "nodemon App.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
