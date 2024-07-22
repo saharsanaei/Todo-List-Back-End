@@ -24,11 +24,14 @@ const initTables = async () => {
         await pool.query(createTaskTable);
         await pool.query(createCategoryTable);
         await pool.query(createProgressTable);
+const alterUserTable = 'ALTER TABLE "User" ADD COLUMN IF NOT EXISTS token VARCHAR(255);';
+        await pool.query(alterUserTable);
         console.log('Tables initialized');
     } catch (error) {
         console.error('Error initializing tables:', error);
     }
 };
+
 
 app.listen(port, () => {
     initTables();
