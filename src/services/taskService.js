@@ -1,5 +1,5 @@
-import { getTasksByUser, getTasksByCategory, getTaskById, addTask, updateTask, deleteTask } from '../models/task.js';
-import { addProgress } from '../models/progress.js';
+import { getTasksByUser, getTasksByCategory, getTaskById, addTask, updateTask, deleteTask } from '../models/Task.js';
+import { addProgress } from '../models/Progress.js';
 
 const addTaskService = async (userId, categoryId, title, description, due_date, priority, status) => {
     const task = await addTask(userId, categoryId, title, description, due_date, priority, status);
