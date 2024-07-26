@@ -1,23 +1,23 @@
-import { body } from 'express-validator';
+import Joi from 'joi';
 
-const taskValidations = [
-    body('title').isLength({ min: 1 }).withMessage('Title is required'),
-    body('description').optional().isString().withMessage('Description must be a string'),
-    body('due_date').optional().isISO8601().toDate().withMessage('Due date must be a valid date'),
-    body('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Priority must be low, medium, or high'),
-    body('status').optional().isIn(['pending', 'completed']).withMessage('Status must be pending or completed')
-];
+const taskSchema = Joi.object({
+    title: Joi.string().min(1).required(),
+    description: Joi.string().allow(''),
+    due_date: Joi.date().iso(),
+    priority: Joi.string().valid('low', 'medium', 'high'),
+    status: Joi.string().valid('pending', 'completed')
+});
 
-const userValidations = {
-    register: [
-        body('username').isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
-        body('password').isLength({ min: 5 }).withMessage('Password must be at least 5 characters long'),
-        body('email').isEmail().withMessage('Email must be valid')
-    ],
-    login: [
-        body('username').isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
-        body('password').isLength({ min: 5 }).withMessage('Password must be at least 5 characters long')
-    ]
+const userSchema = {
+    register: Joi.object({
+        username: Joi.string().min(3).required(),
+        password: Joi.string().min(5).required(),
+        email: Joi.string().email().required()
+    }),
+    login: Joi.object({
+        username: Joi.string().min(3).required(),
+        password: Joi.string().min(5).required()
+    })
 };
 
-export { taskValidations, userValidations };
+export { taskSchema, userSchema };
