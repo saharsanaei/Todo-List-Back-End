@@ -1,5 +1,4 @@
-import { validationResult } from 'express-validator';
-import { getTasksByUser, getTaskById, addTask, updateTask, deleteTask } from '../../services/taskService.js';
+import { getTasksByUser, getTaskById, addTaskService, updateTaskService, deleteTaskService } from '../../services/taskService.js';
 
 const getAllTasks = async (req, res) => {
     try {
@@ -22,14 +21,9 @@ const getTask = async (req, res) => {
 };
 
 const createTask = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
     const { title, description, due_date, priority, status } = req.body;
     try {
-        const task = await addTask(req.user.id, title, description, due_date, priority, status);
+        const task = await addTaskService(req.user.id, title, description, due_date, priority, status);
         res.json(task);
     } catch (error) {
         console.error('Error creating task:', error);
@@ -38,14 +32,9 @@ const createTask = async (req, res) => {
 };
 
 const updateTaskById = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
     const { title, description, due_date, priority, status } = req.body;
     try {
-        const task = await updateTask(req.params.id, req.user.id, title, description, due_date, priority, status);
+        const task = await updateTaskService(req.params.id, req.user.id, title, description, due_date, priority, status);
         res.json(task);
     } catch (error) {
         console.error('Error updating task:', error);
@@ -55,7 +44,7 @@ const updateTaskById = async (req, res) => {
 
 const deleteTaskById = async (req, res) => {
     try {
-        const task = await deleteTask(req.params.id, req.user.id);
+        const task = await deleteTaskService(req.params.id, req.user.id);
         res.json(task);
     } catch (error) {
         console.error('Error deleting task:', error);

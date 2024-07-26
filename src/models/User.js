@@ -1,13 +1,16 @@
-const createUserTable = `
-CREATE TABLE IF NOT EXISTS "User" (
-    user_id SERIAL PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    token VARCHAR(255),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-`;
+import pool from '../core/configs/database.js';
 
-export default createUserTable;
+const createUser = async (username, password, email) => {
+    const result = await pool.query(
+        'INSERT INTO "User" (username, password, email) VALUES ($1, $2, $3) RETURNING user_id, username',
+        [username, password, email]
+    );
+    return result.rows[0];
+};
+
+const findUserByUsername = async (username) => {
+    const result = await pool.query('SELECT user_id, username, password FROM "User" WHERE username = $1', [username]);
+    return result.rows[0];
+};
+
+export { createUser, findUserByUsername };
