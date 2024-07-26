@@ -7,10 +7,12 @@ import createUserTable from './src/models/User.js';
 import createTaskTable from './src/models/Task.js';
 import createCategoryTable from './src/models/Category.js';
 import createProgressTable from './src/models/Progress.js';
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -24,14 +26,13 @@ const initTables = async () => {
         await pool.query(createTaskTable);
         await pool.query(createCategoryTable);
         await pool.query(createProgressTable);
-const alterUserTable = 'ALTER TABLE "User" ADD COLUMN IF NOT EXISTS token VARCHAR(255);';
+        const alterUserTable = 'ALTER TABLE "User" ADD COLUMN IF NOT EXISTS token VARCHAR(255);';
         await pool.query(alterUserTable);
         console.log('Tables initialized');
     } catch (error) {
         console.error('Error initializing tables:', error);
     }
 };
-
 
 app.listen(port, () => {
     initTables();
