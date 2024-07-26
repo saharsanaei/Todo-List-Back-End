@@ -3,9 +3,14 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import JWT_SECRET from '../core/secrets/jwt.js';
 
+// Generate a JWT token based on the user's username
+const generateToken = (username) => {
+    return jwt.sign({ username }, JWT_SECRET);
+};
+
 const registerUser = async (username, password, email) => {
     const hashedPassword = await bcrypt.hash(password, 8);
-    const token = jwt.sign({ username }, JWT_SECRET); // Generate token based on username
+    const token = generateToken(username); // Generate token based on username
 
     const result = await pool.query(
         'INSERT INTO "User" (username, password, email, token) VALUES ($1, $2, $3, $4) RETURNING user_id, username, token',
