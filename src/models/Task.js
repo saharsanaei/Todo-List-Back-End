@@ -18,12 +18,12 @@ const getTaskById = async (taskId, userId) => {
     return result.rows[0];
 };
 
-const addTask = async (userId, categoryId, title, description, due_date, priority, status) => {
-    const result = await pool.query(
-        'INSERT INTO Task (user_id, category_id, title, description, due_date, priority, status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-        [userId, categoryId, title, description, due_date, priority, status]
-    );
-    return result.rows[0];
+const addTask = async (userId, title, description, due_date, priority, category_id) => {
+  const result = await pool.query(
+    'INSERT INTO Task (user_id, title, description, due_date, priority, category_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+    [userId, title, description, due_date, priority, category_id]
+  );
+  return result.rows[0];
 };
 
 const updateTask = async (taskId, userId, categoryId, title, description, due_date, priority, status) => {
@@ -38,11 +38,11 @@ const updateTask = async (taskId, userId, categoryId, title, description, due_da
 };
 
 const deleteTask = async (taskId, userId) => {
-    const result = await pool.query('DELETE FROM Task WHERE task_id = $1 AND user_id = $2 RETURNING *', [taskId, userId]);
-    if (result.rows.length === 0) {
-        throw new Error('Task not found or user unauthorized');
-    }
-    return result.rows[0];
+  const result = await pool.query('DELETE FROM Task WHERE task_id = $1 AND user_id = $2 RETURNING *', [taskId, userId]);
+  if (result.rows.length === 0) {
+    throw new Error('Task not found or user unauthorized');
+  }
+  return result.rows[0];
 };
 
 export { getTasksByUser, getTasksByCategory, getTaskById, addTask, updateTask, deleteTask };
