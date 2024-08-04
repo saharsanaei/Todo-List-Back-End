@@ -34,10 +34,16 @@ const createTask = async (req, res) => {
 
 const deleteTaskById = async (req, res) => {
   try {
-    const task = await deleteTaskService(req.params.id, req.user.id);
-    res.json(task);
+    const taskId = req.params.id;
+    const userId = req.user.id;
+    console.log('Deleting task:', taskId, 'for user:', userId);
+    const task = await deleteTaskService(taskId, userId);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found or you are not authorized to delete this task' });
+    }
+    res.json({ message: 'Task deleted successfully', task });
   } catch (error) {
-    console.error('Error deleting task:', error);
+    console.error('Error in deleteTaskById:', error);
     res.status(500).json({ message: 'Error deleting task', error: error.message });
   }
 };
