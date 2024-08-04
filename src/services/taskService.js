@@ -8,9 +8,14 @@ const addTaskService = async (userId, title, description, due_date, priority, ca
 };
 
 const deleteTaskService = async (taskId, userId) => {
-  const task = await deleteTask(taskId, userId);
-  await addProgress(task.task_id, 'delete');
-  return task;
+  try {
+    console.log('Deleting task in service:', taskId, 'for user:', userId);
+    const task = await deleteTask(taskId, userId);
+    return task;
+  } catch (error) {
+    console.error('Error in deleteTaskService:', error);
+    throw error;
+  }
 };
 
 const updateTaskService = async (taskId, userId, categoryId, title, description, due_date, priority, status) => {
