@@ -1,17 +1,11 @@
 import express from 'express';
+import { createCategory, getCategories, deleteCategory } from './categoryController.js';
+import authenticateToken from '../../core/middlewares/authenticateToken.js';
+
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  res.send('Get all categories');
-});
-
-router.post('/', (req, res) => {
-  const { name } = req.body;
-  if (name) {
-    res.status(201).json({ category_id: Date.now(), name });
-  } else {
-    res.status(400).send('Category name is required');
-  }
-});
+router.post('/', authenticateToken, createCategory);
+router.get('/', authenticateToken, getCategories);
+router.delete('/:id', authenticateToken, deleteCategory);
 
 export default router;
