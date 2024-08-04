@@ -38,11 +38,17 @@ const updateTask = async (taskId, userId, categoryId, title, description, due_da
 };
 
 const deleteTask = async (taskId, userId) => {
-  const result = await pool.query('DELETE FROM Task WHERE task_id = $1 AND user_id = $2 RETURNING *', [taskId, userId]);
-  if (result.rows.length === 0) {
-    throw new Error('Task not found or user unauthorized');
+  try {
+    console.log('Deleting task in model:', taskId, 'for user:', userId);
+    const result = await pool.query('DELETE FROM Task WHERE task_id = $1 AND user_id = $2 RETURNING *', [taskId, userId]);
+    if (result.rows.length === 0) {
+      throw new Error('Task not found or user unauthorized');
+    }
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error in deleteTask model:', error);
+    throw error;
   }
-  return result.rows[0];
 };
 
 export { getTasksByUser, getTasksByCategory, getTaskById, addTask, updateTask, deleteTask };
