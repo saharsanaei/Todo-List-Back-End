@@ -19,11 +19,16 @@ const getTaskById = async (taskId, userId) => {
 };
 
 const addTask = async (userId, title, description, due_date, priority, category_id) => {
-  const result = await pool.query(
-    'INSERT INTO Task (user_id, title, description, due_date, priority, category_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-    [userId, title, description, due_date, priority, category_id]
-  );
-  return result.rows[0];
+  try {
+    const result = await pool.query(
+      'INSERT INTO Task (user_id, title, description, due_date, priority, category_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [userId, title, description, due_date, priority, category_id]
+    );
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error in addTask:', error.message);
+    throw new Error('Could not add task');
+  }
 };
 
 const updateTask = async (taskId, userId, categoryId, title, description, due_date, priority, status) => {
