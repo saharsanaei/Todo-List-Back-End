@@ -21,13 +21,18 @@ const getTask = async (req, res) => {
 };
 
 const createTask = async (req, res) => {
-  const { title, description, due_date, priority, category_id } = req.body;
   try {
-    console.log('Received task data:', req.body); // Log received data
-    const task = await addTaskService(req.user.id, title, description, due_date, priority, category_id);
+    console.log('Received task data:', req.body);
+    const { title, description, due_date, priority, category_id } = req.body;
+    const userId = req.user.id;
+    console.log('Creating task for user:', userId);
+    
+    const task = await addTaskService(userId, title, description, due_date, priority, category_id);
+    console.log('Task created successfully:', task);
     res.status(201).json(task);
   } catch (error) {
-    console.error('Error creating task:', error);
+    console.error('Error in createTask:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ message: 'Error creating task', error: error.message });
   }
 };
@@ -49,9 +54,9 @@ const deleteTaskById = async (req, res) => {
 };
 
 const updateTaskById = async (req, res) => {
-    const { title, description, due_date, priority, status } = req.body;
+    const { title, description, due_date, priority } = req.body;
     try {
-        const task = await updateTaskService(req.params.id, req.user.id, title, description, due_date, priority, status);
+        const task = await updateTaskService(req.params.id, req.user.id, title, description, due_date, priority);
         res.json(task);
     } catch (error) {
         console.error('Error updating task:', error);
