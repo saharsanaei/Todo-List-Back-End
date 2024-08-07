@@ -25,10 +25,20 @@ const deleteTaskService = async (taskId, userId) => {
   }
 };
 
-const updateTaskService = async (taskId, userId, title, description, due_date, priority, category_id) => {
-  const task = await updateTask(taskId, userId, category_id, title, description, due_date, priority, 'incomplete');
-  await addProgress(task.task_id, 'update');
-  return task;
+const updateTaskService = async (taskId, userId, category_id, title, description, due_date, priority) => {
+    try {
+        console.log('updateTaskService called with:', { taskId, userId, category_id, title, description, due_date, priority });
+        const task = await updateTask(taskId, userId, category_id, title, description, due_date, priority);
+        console.log('Task updated in database:', task);
+        await addProgress(task.task_id, 'update');
+        return task;
+    } catch (error) {
+        console.error('Error in updateTaskService:', error);
+        console.error('Error stack:', error.stack);
+        throw new Error(`Failed to update task: ${error.message}`);
+    }
 };
+
+
 
 export { getTasksByUser, getTasksByCategory, getTaskById, addTaskService, updateTaskService, deleteTaskService };

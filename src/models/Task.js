@@ -31,15 +31,25 @@ const addTask = async (userId, title, description, due_date, priority, category_
   }
 };
 
-const updateTask = async (taskId, userId, categoryId, title, description, due_date, priority, status) => {
-    const result = await pool.query(
-        'UPDATE Task SET category_id = $1, title = $2, description = $3, due_date = $4, priority = $5, status = $6, updated_at = CURRENT_TIMESTAMP WHERE task_id = $7 AND user_id = $8 RETURNING *',
-        [categoryId, title, description, due_date, priority, status, taskId, userId]
-    );
-    if (result.rows.length === 0) {
-        throw new Error('Task not found or user unauthorized');
+const updateTask = async (taskId, userId, categoryId, title, description, due_date, priority) => {
+    try {
+        console.log('Executing SQL query with params:', { taskId, userId, categoryId, title, description, due_date, priority });
+        const result = await pool.query(
+            'UPDATE Task SET category_id = $1, title = $2, description = $3, due_date = $4, priority = $5, updated_at = CURRENT_TIMESTAMP WHERE task_id = $6 AND user_id = $7 RETURNING *',
+            [categoryId, title, description, due_date, priority, taskId, userId]
+        );
+
+        if (result.rows.length === 0) {
+            throw new Error('Task not found or user unauthorized');
+        }
+
+        console.log('SQL query result:', result.rows[0]);
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error in updateTask:', error);
+        console.error('Error stack:', error.stack);
+        throw new Error(`Database error: ${error.message}`);
     }
-    return result.rows[0];
 };
 
 const deleteTask = async (taskId, userId) => {
