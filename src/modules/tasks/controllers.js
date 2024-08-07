@@ -54,14 +54,14 @@ const deleteTaskById = async (req, res) => {
 };
 
 const updateTaskById = async (req, res) => {
-    const { title, description, due_date, priority } = req.body;
-    try {
-        const task = await updateTaskService(req.params.id, req.user.id, title, description, due_date, priority);
-        res.json(task);
-    } catch (error) {
-        console.error('Error updating task:', error);
-        res.status(500).json({ message: 'Error updating task', error: error.message });
-    }
+  const { title, description, due_date, priority, category_id } = req.body;
+  try {
+      const task = await updateTaskService(req.params.id, req.user.id, category_id, title, description, due_date, priority);
+      res.json(task);
+  } catch (error) {
+      console.error('Error updating task:', error);
+      res.status(500).json({ message: 'Error updating task', error: error.message });
+  }
 };
 
 export { getAllTasks, getTask, createTask, updateTaskById, deleteTaskById };
