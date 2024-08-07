@@ -21,4 +21,15 @@ const deleteCategory = async (categoryId, userId) => {
   return result.rows[0];
 };
 
-export { createCategory, getCategories, deleteCategory };
+const updateCategory = async (categoryId, userId, name) => {
+  const result = await pool.query(
+      'UPDATE Category SET name = $1 WHERE category_id = $2 AND user_id = $3 RETURNING *',
+      [name, categoryId, userId]
+  );
+  if (result.rows.length === 0) {
+      throw new Error('Category not found or user unauthorized');
+  }
+  return result.rows[0];
+};
+
+export { createCategory, getCategories, deleteCategory, updateCategory };
