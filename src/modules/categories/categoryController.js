@@ -1,4 +1,4 @@
-import { createCategory as addCategory, getCategories as fetchCategories, deleteCategory as removeCategory } from '../../models/Category.js';
+import { createCategory as addCategory, getCategories as fetchCategories, deleteCategory as removeCategory, updateCategory as modifyCategory } from '../../models/Category.js';
 
 export const createCategory = async (req, res) => {
   try {
@@ -30,4 +30,16 @@ export const deleteCategory = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error deleting category', error: error.message });
   }
+};
+
+export const updateCategory = async (req, res) => {
+    try {
+        const { name } = req.body;
+        const categoryId = req.params.id;
+        const userId = req.user.id;
+        const category = await modifyCategory(categoryId, userId, name);
+        res.json(category);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating category', error: error.message });
+    }
 };
