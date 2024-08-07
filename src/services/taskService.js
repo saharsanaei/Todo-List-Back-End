@@ -25,10 +25,10 @@ const deleteTaskService = async (taskId, userId) => {
   }
 };
 
-const updateTaskService = async (taskId, userId, categoryId, title, description, due_date, priority, status) => {
-    const task = await updateTask(taskId, userId, categoryId, title, description, due_date, priority, status);
-    await addProgress(task.task_id, 'update');
-    return task;
+const updateTaskService = async (taskId, userId, title, description, due_date, priority, category_id) => {
+  const task = await updateTask(taskId, userId, category_id, title, description, due_date, priority, 'incomplete');
+  await addProgress(task.task_id, 'update');
+  return task;
 };
 
 export { getTasksByUser, getTasksByCategory, getTaskById, addTaskService, updateTaskService, deleteTaskService };
