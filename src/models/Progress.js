@@ -1,12 +1,18 @@
 import pool from '../core/configs/database.js';
 
 const addProgress = async (taskId, action) => {
-    const result = await pool.query(
-        'INSERT INTO Progress (task_id, action, timestamp) VALUES ($1, $2, CURRENT_TIMESTAMP) RETURNING *',
-        [taskId, action]
-    );
-    return result.rows[0];
+    try {
+        const result = await pool.query(
+            'INSERT INTO Progress (task_id, created_at) VALUES ($1, CURRENT_TIMESTAMP) RETURNING *',
+            [taskId]
+        );
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error in addProgress:', error.message);
+        throw new Error('Could not add progress');
+    }
 };
+
 
 const getProgressByTask = async (taskId) => {
     const result = await pool.query('SELECT * FROM Progress WHERE task_id = $1', [taskId]);
