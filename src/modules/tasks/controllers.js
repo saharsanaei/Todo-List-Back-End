@@ -75,4 +75,18 @@ const updateTaskById = async (req, res) => {
     }
 };
 
-export { getAllTasks, getTask, createTask, updateTaskById, deleteTaskById };
+const markTaskAsCompleted = async (req, res) => {
+  const taskId = req.params.id;
+  const userId = req.user.id;
+  const { is_completed } = req.body;
+
+  try {
+    const task = await markTaskAsCompleted(taskId, userId, is_completed);
+    res.json(task);
+  } catch (error) {
+    console.error('Error marking task as completed:', error);
+    res.status(500).json({ message: 'Error marking task as completed', error: error.message });
+  }
+};
+
+export { getAllTasks, getTask, createTask, updateTaskById, deleteTaskById, markTaskAsCompleted };
