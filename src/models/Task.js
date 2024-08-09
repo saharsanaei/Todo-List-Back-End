@@ -64,4 +64,15 @@ const deleteTask = async (taskId, userId) => {
   }
 };
 
-export { getTasksByUser, getTasksByCategory, getTaskById, addTask, updateTask, deleteTask };
+const markTaskAsCompleted = async (taskId, userId, isCompleted) => {
+  const result = await pool.query(
+    'UPDATE Task SET is_completed = $1 WHERE task_id = $2 AND user_id = $3 RETURNING *',
+    [isCompleted, taskId, userId]
+  );
+  if (result.rows.length === 0) {
+    throw new Error('Task not found or user unauthorized');
+  }
+  return result.rows[0];
+};
+
+export { getTasksByUser, getTasksByCategory, getTaskById, addTask, updateTask, deleteTask, markTaskAsCompleted };
