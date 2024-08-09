@@ -30,7 +30,12 @@ const updateTaskService = async (taskId, userId, category_id, title, description
         console.log('updateTaskService called with:', { taskId, userId, category_id, title, description, due_date, priority });
         const task = await updateTask(taskId, userId, category_id, title, description, due_date, priority);
         console.log('Task updated in database:', task);
-        await addProgress(task.task_id, 'update');
+        
+        const progress = await addProgress(task.task_id, 'update');
+        if (!progress) {
+            console.warn('Failed to add progress, but task was updated');
+        }
+        
         return task;
     } catch (error) {
         console.error('Error in updateTaskService:', error);
@@ -38,7 +43,6 @@ const updateTaskService = async (taskId, userId, category_id, title, description
         throw new Error(`Failed to update task: ${error.message}`);
     }
 };
-
 
 
 export { getTasksByUser, getTasksByCategory, getTaskById, addTaskService, updateTaskService, deleteTaskService };

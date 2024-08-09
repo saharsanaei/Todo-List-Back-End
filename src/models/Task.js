@@ -38,11 +38,9 @@ const updateTask = async (taskId, userId, categoryId, title, description, due_da
             'UPDATE Task SET category_id = $1, title = $2, description = $3, due_date = $4, priority = $5, updated_at = CURRENT_TIMESTAMP WHERE task_id = $6 AND user_id = $7 RETURNING *',
             [categoryId, title, description, due_date, priority, taskId, userId]
         );
-
         if (result.rows.length === 0) {
             throw new Error('Task not found or user unauthorized');
         }
-
         console.log('SQL query result:', result.rows[0]);
         return result.rows[0];
     } catch (error) {
