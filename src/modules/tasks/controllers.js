@@ -55,25 +55,32 @@ const deleteTaskById = async (req, res) => {
 };
 
 const updateTaskById = async (req, res) => {
-    const { title, description, due_date, priority, category_id } = req.body;
-    const taskId = req.params.id;
-    const userId = req.user.id;
+  const taskId = req.params.id;
+  const userId = req.user.id;
+  const { title, description, due_date, priority, category_id } = req.body;
 
-    try {
-        console.log('Updating task:', { taskId, userId, title, description, due_date, priority, category_id });
-        const task = await updateTaskService(taskId, userId, category_id, title, description, due_date, priority);
-        console.log('Task updated successfully:', task);
-        res.json(task);
-    } catch (error) {
-        console.error('Error in updateTaskById:', error);
-        console.error('Error stack:', error.stack);
-        res.status(500).json({
-            message: 'Error updating task',
-            error: error.message,
-            stack: error.stack,
-            details: error.toString()
-        });
+  try {
+    console.log('Updating task:', { taskId, userId, title, description, due_date, priority, category_id });
+
+    // Validate the incoming data
+    if (!title || title.trim() === '') {
+      return res.status(400).json({ message: 'Title is required' });
     }
+
+    const result = await pool.query(
+      'UPDATE Task SET title = $1, description = $2, due_date = $3, priority = $4, category_id = $5, updated_at = CURRENT_TIMESTAMP WHERE task_id = $6 AND user_id = $7 RETURNING *',
+      [title, description, due_date, priority, category_id, taskId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Task not found or user unauthorized' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error in updateTask:', error);
+    res.status(500).json({ message: 'Error updating task', error: error.message });
+  }
 };
 
 const markTaskAsCompleted = async (req, res) => {
