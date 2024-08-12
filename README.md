@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS Progress (
     weekly_progress INTEGER,
     daily_progress INTEGER,
     date DATE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    task_id INTEGER,
+    FOREIGN KEY (task_id) REFERENCES Task (task_id),
     FOREIGN KEY (user_id) REFERENCES "User" (user_id)
 );
 
@@ -27,6 +30,7 @@ CREATE TABLE Task (
     due_date DATE,
     priority INTEGER,
     category_id INTEGER,
+    is_completed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES "User" (user_id),
