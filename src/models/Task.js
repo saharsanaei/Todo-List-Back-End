@@ -65,14 +65,23 @@ const deleteTask = async (taskId, userId) => {
 };
 
 const markTaskAsCompleted = async (taskId, userId, isCompleted) => {
-  const result = await pool.query(
-    'UPDATE Task SET is_completed = $1 WHERE task_id = $2 AND user_id = $3 RETURNING *',
-    [isCompleted, taskId, userId]
-  );
-  if (result.rows.length === 0) {
-    throw new Error('Task not found or user unauthorized');
+  try {
+    console.log('Updating task in database:', { taskId, userId, isCompleted });
+    const result = await pool.query(
+      'UPDATE Task SET is_completed = $1, updated_at = CURRENT_TIMESTAMP WHERE task_id = $2 AND user_id = $3 RETURNING *',
+      [isCompleted, taskId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error('Task not found or user unauthorized');
+    }
+
+    console.log('Database update result:', result.rows[0]);
+    return result.rows[0];
+  } catch (error) {
+    console.error('Database error:', error);
+    throw error;
   }
-  return result.rows[0];
 };
 
 export { getTasksByUser, getTasksByCategory, getTaskById, addTask, updateTask, deleteTask, markTaskAsCompleted };
