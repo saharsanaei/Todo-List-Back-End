@@ -9,7 +9,12 @@ const addProgress = async (taskId, action) => {
         return result.rows[0];
     } catch (error) {
         console.error('Error adding progress:', error);
-        // Instead of throwing, we'll return null
+        console.error('Error details:', {
+            taskId,
+            action,
+            errorCode: error.code,
+            errorMessage: error.message,
+        });
         return null;
     }
 };
