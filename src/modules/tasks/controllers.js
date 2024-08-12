@@ -1,4 +1,5 @@
 import { getTasksByUser, getTaskById, addTaskService, updateTaskService, deleteTaskService } from '../../services/taskService.js';
+import pool from '../../core/configs/database.js';
 
 const getAllTasks = async (req, res) => {
     try {
@@ -81,8 +82,16 @@ const markTaskAsCompleted = async (req, res) => {
   const { is_completed } = req.body;
 
   try {
-    const task = await markTaskAsCompleted(taskId, userId, is_completed);
-    res.json(task);
+    const result = await pool.query(
+      'UPDATE Task SET is_completed = $1, updated_at = CURRENT_TIMESTAMP WHERE task_id = $2 AND user_id = $3 RETURNING *',
+      [is_completed, taskId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Task not found or user unauthorized' });
+    }
+
+    res.json(result.rows[0]);
   } catch (error) {
     console.error('Error marking task as completed:', error);
     res.status(500).json({ message: 'Error marking task as completed', error: error.message });
