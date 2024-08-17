@@ -14,11 +14,38 @@ const getCategories = async (userId) => {
 };
 
 const deleteCategory = async (categoryId, userId) => {
-  const result = await pool.query('DELETE FROM Category WHERE category_id = $1 AND user_id = $2 RETURNING *', [categoryId, userId]);
-  if (result.rows.length === 0) {
-    throw new Error('Category not found or user unauthorized');
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Check if there are any tasks associated with this category
+    const taskCheckResult = await client.query(
+      'SELECT COUNT(*) FROM Task WHERE category_id = $1 AND user_id = $2',
+      [categoryId, userId]
+    );
+
+    if (taskCheckResult.rows[0].count > 0) {
+      throw new Error('Cannot delete category with associated tasks');
+    }
+
+    const result = await client.query(
+      'DELETE FROM Category WHERE category_id = $1 AND user_id = $2 RETURNING *',
+      [categoryId, userId]
+    );
+
+    await client.query('COMMIT');
+
+    if (result.rows.length === 0) {
+      throw new Error('Category not found or user unauthorized');
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
   }
-  return result.rows[0];
 };
 
 const updateCategory = async (categoryId, userId, name) => {

@@ -28,7 +28,11 @@ export const deleteCategory = async (req, res) => {
     await removeCategory(categoryId, userId);
     res.json({ message: 'Category deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting category', error: error.message });
+    if (error.message === 'Cannot delete category with associated tasks') {
+      res.status(400).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Error deleting category', error: error.message });
+    }
   }
 };
 
