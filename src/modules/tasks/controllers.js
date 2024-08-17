@@ -1,4 +1,4 @@
-import { getTasksByUser, getTaskById, addTaskService, updateTaskService, deleteTaskService } from '../../services/taskService.js';
+import { getTasksByUser, getTaskById, addTaskService, updateTaskService, deleteTaskService, markTaskAsCompleted } from '../../services/taskService.js';
 import pool from '../../core/configs/database.js';
 
 const getAllTasks = async (req, res) => {
@@ -43,11 +43,15 @@ const deleteTaskById = async (req, res) => {
     const taskId = req.params.id;
     const userId = req.user.id;
     console.log('Deleting task:', taskId, 'for user:', userId);
-    const task = await deleteTaskService(taskId, userId);
-    if (!task) {
+    const result = await deleteTaskService(taskId, userId);
+    if (!result.task) {
       return res.status(404).json({ message: 'Task not found or you are not authorized to delete this task' });
     }
-    res.json({ message: 'Task deleted successfully', task });
+    res.json({
+      message: 'Task deleted successfully',
+      task: result.task,
+      progress: result.progress
+    });
   } catch (error) {
     console.error('Error in deleteTaskById:', error);
     res.status(500).json({ message: 'Error deleting task', error: error.message });
@@ -83,26 +87,17 @@ const updateTaskById = async (req, res) => {
   }
 };
 
-const markTaskAsCompleted = async (req, res) => {
+const handleMarkTaskAsCompleted = async (req, res) => {
   const taskId = req.params.id;
   const userId = req.user.id;
   const { is_completed } = req.body;
-
   try {
-    const result = await pool.query(
-      'UPDATE Task SET is_completed = $1, updated_at = CURRENT_TIMESTAMP WHERE task_id = $2 AND user_id = $3 RETURNING *',
-      [is_completed, taskId, userId]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Task not found or user unauthorized' });
-    }
-
-    res.json(result.rows[0]);
+    const result = await markTaskAsCompleted(taskId, userId, is_completed);
+    res.json(result);
   } catch (error) {
     console.error('Error marking task as completed:', error);
     res.status(500).json({ message: 'Error marking task as completed', error: error.message });
   }
 };
 
-export { getAllTasks, getTask, createTask, updateTaskById, deleteTaskById, markTaskAsCompleted };
+export { getAllTasks, getTask, createTask, updateTaskById, deleteTaskById, handleMarkTaskAsCompleted as markTaskAsCompleted };
