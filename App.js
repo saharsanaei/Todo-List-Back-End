@@ -15,11 +15,11 @@ app.use(cors());
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-
 app.use('/categories', categoriesRouter);
 app.use('/progress', progressRouter);
 app.use('/users', userRoutes);
 app.use('/tasks', taskRoutes);
+app.use('/tasks', progressRouter);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
