@@ -15,21 +15,26 @@ CREATE TABLE IF NOT EXISTS Progress (
     weekly_progress INTEGER,
     daily_progress INTEGER,
     date DATE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    task_id INTEGER,
+    FOREIGN KEY (task_id) REFERENCES Task (task_id),
     FOREIGN KEY (user_id) REFERENCES "User" (user_id)
 );
 
 ## SQL task
-CREATE TABLE IF NOT EXISTS Task (
+CREATE TABLE Task (
     task_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     due_date DATE,
     priority INTEGER,
-    status INTEGER,
+    category_id INTEGER,
+    is_completed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES "User" (user_id)
+    FOREIGN KEY (user_id) REFERENCES "User" (user_id),
+    FOREIGN KEY (category_id) REFERENCES Category (category_id)
 );
 
 ## SQL user

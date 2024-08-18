@@ -18,31 +18,62 @@ const getTaskById = async (taskId, userId) => {
     return result.rows[0];
 };
 
-const addTask = async (userId, categoryId, title, description, due_date, priority, status) => {
+const addTask = async (userId, title, description, due_date, priority, category_id) => {
+  try {
     const result = await pool.query(
-        'INSERT INTO Task (user_id, category_id, title, description, due_date, priority, status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-        [userId, categoryId, title, description, due_date, priority, status]
+      'INSERT INTO Task (user_id, title, description, due_date, priority, category_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [userId, title, description, due_date, priority, category_id]
     );
     return result.rows[0];
+  } catch (error) {
+    console.error('Error in addTask:', error.message);
+    throw new Error('Could not add task');
+  }
 };
 
-const updateTask = async (taskId, userId, categoryId, title, description, due_date, priority, status) => {
-    const result = await pool.query(
-        'UPDATE Task SET category_id = $1, title = $2, description = $3, due_date = $4, priority = $5, status = $6, updated_at = CURRENT_TIMESTAMP WHERE task_id = $7 AND user_id = $8 RETURNING *',
-        [categoryId, title, description, due_date, priority, status, taskId, userId]
-    );
-    if (result.rows.length === 0) {
-        throw new Error('Task not found or user unauthorized');
+const updateTask = async (taskId, userId, title, description, due_date, priority, category_id, is_completed) => {
+    try {
+        const result = await pool.query(
+            'UPDATE Task SET title = $1, description = $2, due_date = $3, priority = $4, category_id = $5, is_completed = $6, updated_at = CURRENT_TIMESTAMP WHERE task_id = $7 AND user_id = $8 RETURNING *',
+            [title, description, due_date, priority, category_id, is_completed, taskId, userId]
+        );
+
+        if (result.rows.length === 0) {
+            throw new Error('Task not found or user unauthorized');
+        }
+
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error in updateTask:', error);
+        throw error;
     }
-    return result.rows[0];
 };
 
 const deleteTask = async (taskId, userId) => {
-    const result = await pool.query('DELETE FROM Task WHERE task_id = $1 AND user_id = $2 RETURNING *', [taskId, userId]);
+  try {
+    console.log('Deleting task in model:', taskId, 'for user:', userId);
+    const result = await pool.query('DELETE FROM Task WHERE task_id = $1 AND user_id = $2 RETURNING *', [Number(taskId), Number(userId)]);
     if (result.rows.length === 0) {
-        throw new Error('Task not found or user unauthorized');
+      throw new Error('Task not found or user unauthorized');
     }
     return result.rows[0];
+  } catch (error) {
+    console.error('Error in deleteTask model:', error);
+    throw error;
+  }
 };
 
-export { getTasksByUser, getTasksByCategory, getTaskById, addTask, updateTask, deleteTask };
+const markTaskAsCompleted = async (taskId, userId, isCompleted) => {
+  const result = await pool.query(
+    'UPDATE Task SET is_completed = $1, updated_at = CURRENT_TIMESTAMP WHERE task_id = $2 AND user_id = $3 RETURNING *',
+    [isCompleted, taskId, userId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error('Task not found or user unauthorized');
+  }
+
+  return result.rows[0];
+};
+
+export { getTasksByUser, getTasksByCategory, getTaskById, addTask, updateTask, deleteTask, markTaskAsCompleted };

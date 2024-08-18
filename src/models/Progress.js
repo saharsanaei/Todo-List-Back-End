@@ -1,26 +1,43 @@
 import pool from '../core/configs/database.js';
 
-const addProgress = async (taskId, action) => {
-    const result = await pool.query(
-        'INSERT INTO Progress (task_id, action, timestamp) VALUES ($1, $2, CURRENT_TIMESTAMP) RETURNING *',
-        [taskId, action]
-    );
-    return result.rows[0];
+const getDailyProgress = async (userId) => {
+  const result = await pool.query(`
+    SELECT
+      COUNT(*) FILTER (WHERE is_completed = true) AS completed_tasks,
+      COUNT(*) AS total_tasks
+    FROM Task
+    WHERE user_id = $1 AND DATE(due_date) = CURRENT_DATE
+  `, [userId]);
+ 
+  const { completed_tasks, total_tasks } = result.rows[0];
+  const percentage = total_tasks > 0 ? (completed_tasks / total_tasks) * 100 : 0;
+ 
+  return {
+    percentage: Math.round(percentage),
+    completed: parseInt(completed_tasks),
+    total: parseInt(total_tasks)
+  };
 };
 
-const getProgressByTask = async (taskId) => {
-    const result = await pool.query('SELECT * FROM Progress WHERE task_id = $1', [taskId]);
-    return result.rows;
+const getWeeklyProgress = async (userId) => {
+  const result = await pool.query(`
+    SELECT
+      COUNT(*) FILTER (WHERE is_completed = true) AS completed_tasks,
+      COUNT(*) AS total_tasks
+    FROM Task
+    WHERE user_id = $1
+      AND due_date >= CURRENT_DATE
+      AND due_date < CURRENT_DATE + INTERVAL '7 days'
+  `, [userId]);
+ 
+  const { completed_tasks, total_tasks } = result.rows[0];
+  const percentage = total_tasks > 0 ? (completed_tasks / total_tasks) * 100 : 0;
+ 
+  return {
+    percentage: Math.round(percentage),
+    completed: parseInt(completed_tasks),
+    total: parseInt(total_tasks)
+  };
 };
 
-const getProgressByCategory = async (categoryId) => {
-    const result = await pool.query(
-        `SELECT p.* FROM Progress p
-         JOIN Task t ON p.task_id = t.task_id
-         WHERE t.category_id = $1`,
-        [categoryId]
-    );
-    return result.rows;
-};
-
-export { addProgress, getProgressByTask, getProgressByCategory };
+export { getDailyProgress, getWeeklyProgress };

@@ -1,11 +1,11 @@
 import Joi from 'joi';
 
 const taskSchema = Joi.object({
-    title: Joi.string().min(1).required(),
-    description: Joi.string().allow(''),
-    due_date: Joi.date().iso(),
-    priority: Joi.string().valid('low', 'medium', 'high'),
-    status: Joi.string().valid('pending', 'completed')
+  title: Joi.string().required(),
+  description: Joi.string().allow(''),
+  due_date: Joi.date().iso().allow(null),
+  priority: Joi.number().integer().min(1).max(3),
+  category_id: Joi.number().integer().required()
 });
 
 const userSchema = {
