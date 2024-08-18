@@ -31,29 +31,28 @@ const addTask = async (userId, title, description, due_date, priority, category_
   }
 };
 
-const updateTask = async (taskId, userId, categoryId, title, description, due_date, priority) => {
+const updateTask = async (taskId, userId, title, description, due_date, priority, category_id, is_completed) => {
     try {
-        console.log('Executing SQL query with params:', { taskId, userId, categoryId, title, description, due_date, priority });
         const result = await pool.query(
-            'UPDATE Task SET category_id = $1, title = $2, description = $3, due_date = $4, priority = $5, updated_at = CURRENT_TIMESTAMP WHERE task_id = $6 AND user_id = $7 RETURNING *',
-            [categoryId, title, description, due_date, priority, taskId, userId]
+            'UPDATE Task SET title = $1, description = $2, due_date = $3, priority = $4, category_id = $5, is_completed = $6, updated_at = CURRENT_TIMESTAMP WHERE task_id = $7 AND user_id = $8 RETURNING *',
+            [title, description, due_date, priority, category_id, is_completed, taskId, userId]
         );
+
         if (result.rows.length === 0) {
             throw new Error('Task not found or user unauthorized');
         }
-        console.log('SQL query result:', result.rows[0]);
+
         return result.rows[0];
     } catch (error) {
         console.error('Error in updateTask:', error);
-        console.error('Error stack:', error.stack);
-        throw new Error(`Database error: ${error.message}`);
+        throw error;
     }
 };
 
 const deleteTask = async (taskId, userId) => {
   try {
     console.log('Deleting task in model:', taskId, 'for user:', userId);
-    const result = await pool.query('DELETE FROM Task WHERE task_id = $1 AND user_id = $2 RETURNING *', [taskId, userId]);
+    const result = await pool.query('DELETE FROM Task WHERE task_id = $1 AND user_id = $2 RETURNING *', [Number(taskId), Number(userId)]);
     if (result.rows.length === 0) {
       throw new Error('Task not found or user unauthorized');
     }
