@@ -25,7 +25,9 @@ const getWeeklyProgress = async (userId) => {
       COUNT(*) FILTER (WHERE is_completed = true) AS completed_tasks,
       COUNT(*) AS total_tasks
     FROM Task
-    WHERE user_id = $1 AND created_at >= DATE_TRUNC('week', CURRENT_DATE)
+    WHERE user_id = $1
+      AND due_date >= CURRENT_DATE
+      AND due_date < CURRENT_DATE + INTERVAL '7 days'
   `, [userId]);
  
   const { completed_tasks, total_tasks } = result.rows[0];
@@ -33,8 +35,8 @@ const getWeeklyProgress = async (userId) => {
  
   return {
     percentage: Math.round(percentage),
-    completed: completed_tasks,
-    total: total_tasks
+    completed: parseInt(completed_tasks),
+    total: parseInt(total_tasks)
   };
 };
 
