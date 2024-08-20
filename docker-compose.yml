@@ -1,11 +1,4 @@
-name: Docker Compose CI
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+version: '3'
 services:
   app:
     build: .
