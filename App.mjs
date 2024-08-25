@@ -10,7 +10,9 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN
+}));
 
 const port = process.env.PORT || 3000;
 
@@ -21,6 +23,7 @@ app.use('/users', userRoutes);
 app.use('/tasks', taskRoutes);
 app.use('/tasks', progressRouter);
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on port ${port}`);
+  });  
