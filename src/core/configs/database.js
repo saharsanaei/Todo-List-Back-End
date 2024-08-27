@@ -10,9 +10,7 @@ const pool = new Pool({
     user: process.env.PGUSER,
     password: process.env.PGPASSWORD,
     port: process.env.PGPORT || 5432,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    ssl: false
 });
 pool.on('error', (err) => {
     console.error('Unexpected error on idle client', err);

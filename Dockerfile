@@ -8,6 +8,8 @@ RUN npm install
 
 COPY . .
 
+RUN ls -la
+
 EXPOSE 3000
 
-CMD ["node", "app.js"]
+CMD ["node", "App.mjs"]
